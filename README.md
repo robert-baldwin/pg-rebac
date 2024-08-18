@@ -6,7 +6,7 @@ Since the [Zanibar paper](https://zanzibar.tech/) was published in 2019 multiple
 
 But I wanted a simple postgres based authorization solution for my simple monolithic application. I was already using [AuthJS](https:/authjs.dev) for authentication and postgres for storing my application data. Role based access control is rather limited. And I wanted clear separation between the data model for my application and its permissions. In the past I've used libraries at the application layer to handle authorization that integrate direcly with my data model.
 
-A postgres solution must be possible. SpiceDB and Keto both have postgres as storage options. Yet the only hits I found on Github for Zanzibar/ReBAC were proof of concepts ([zanzibar-pg](https://github.com/josephglanville/zanzibar-pg), [pgzan](https://github.com/brahmlower/pgzan)) that didn't quite fit my use case. Most early applications implement their own permissions using library in the application layer without an external service, yet a ReBAC solution didn't exist for NodeJS and postgres, one of the most popular setups in 2024.
+A postgres solution must be possible. SpiceDB and Keto both have postgres as storage options. Yet the only hits I found on Github for Zanzibar/ReBAC were proof of concepts ([zanzibar-pg](https://github.com/josephglanville/zanzibar-pg), [pgzan](https://github.com/brahmlower/pgzan)) that didn't quite fit my use case. Most early applications implement their own permissions using a library in the application layer without an external service, yet a ReBAC solution didn't exist for NodeJS and postgres, one of the most popular setups in 2024.
 
 ## Zanzibar Features
 
@@ -17,20 +17,20 @@ As far as I can tell there are three basic components of Zanzibar:
 
 There's also the ability to return a collection of objects a user can operate on, but all I wanted was a simple check method for a single object to start.
 
-Relations are as [tuples](https://zanzibar.tech/#annotations/intro/no-user-user). Here's an example of a Object-User relation:
+User-Object relations are described as [tuples](https://zanzibar.tech/#annotations/intro/no-user-user) in the format `<namespace>:<object_id>#<relationship>@<user_id>`. Here's an example of a Object-User relation:
 ```
-doc:1#owner@10
-group:1#member@11
+doc:1#owner@1
+group:1#member@2
 ```
 
-This states that the user with id 10 is the owner of the document with id 1. The user with id 11 is a member of the group with id 1.
+This states that the user with id 1 is the owner of the document with id 1. The user with id 2 is a member of the group with id 1.
 
-And an example of an Object-Object relation stating that a member of group 1 is a viewer of the document with id 1:
+Object-Object relations are described in the format `<namespace>:<object_id>#<relationship>@<namespace>:<object_id>`. For example, a member of group 1 is a viewer of the document with id 1 would be represented as:
 ```
 doc:1#viewer@group:1#member
 ```
 
-The result being that the user with id 10 is the owner of document 1 and the user with is 11 can view the document.
+The result being that the user with id 1 is the owner of document 1 and the user with id 2 can view the document.
 
 ## Representing Permission Checks as Graphs
 
@@ -59,9 +59,9 @@ In this case the `*` denotes any number of relationships and any number of relat
 MATCH (User {id: 2})-[*]->(Object {id: 1, namespace: "doc"});
 ```
 
-In Zanzibar's paper they describe objects with `<namespace>:<id>` syntax. We can use the `namespace` property on an object node (also called a vertex in graph terminology) to describe the type of object. However, this isn't nearly enough to describe relations with enough specificity to perform a check with a the interface we desire.
+In Zanzibar's paper they describe objects with `<namespace>:<id>` syntax. We can use the `namespace` property on an object node (aka. vertex) to describe the type of object. However, this isn't nearly enough to describe relations with enough specificity to perform a check with a the interface we desire.
 
-What if check if User 2 can edit Document 1? This cypher query will still find a path between the two objects. The above cypher query isn't checking any relationship types.
+What if we check if User 2 can edit Document 1? This cypher query will still find a path between the two objects. The above cypher query ignores relationship types.
 
 ## A Simple User-Object Permission Check
 
@@ -74,7 +74,7 @@ flowchart LR
 
 This describes a User-Object relationship where User 1 is a viewer of Document 1.
 
-To perform a check to see if the user can edit the document we can use the following cypher query:
+To perform a check to see if the user can view the document we can use the following cypher query:
 
 ```cypher
 MATCH (User {id: 1})-[:viewer]->(Object {id: 1, namespace: "doc"});
@@ -85,7 +85,7 @@ Instead of using `*` we can use the `[:label]` syntax (a label is also the relat
 MATCH (User {id: 1})-[:editor]->(Object {id: 1, namespace: "doc"});
 ```
 
-The `MATCH` clause will return 0 matches if the only relationships betwen the User and Object are of type "viewer". An astute reader may notice that we'd like for an "owner" or "editor" of the document to also be a "viewer" of a document. We'll address this later on with the userset rewrites feature set mentioned earlier.
+The `MATCH` clause will return 0 matches if the only relationships betwen the User and Object are of type "viewer". An astute reader may notice that we'd like for an editor of the document to also be a viewer of a document. We'll address this later on with the userset rewrites feature set mentioned earlier.
 
 ## A Simple Object-Object Permission Check
 
@@ -136,9 +136,7 @@ flowchart LR
     G1 -->|viewer, prev: guest| D1(doc:1)
 ```
 
-Now each Object-Object relationship knows the previous relationship type. In this case the editors relationship between Group 1 and Document 1 applies only to members of Group 1. Similarly, the viewers relationship between Group 1 and Document 1 applies to guests of Group 1.
-
-Now our cypher query becomes significantly more complex. We need to `UNWIND` each step of the path and compare the relationship type of each step to the previous step.
+Now each Object-Object relationship knows the previous relationship type. In this case the "editor" relationship between Group 1 and Document 1 applies only to members of Group 1. Similarly, the "viewer" relationship between Group 1 and Document 1 applies to guests of Group 1.
 
 Here's the cypher query that checks if User 2 can edit Document 1:
 
@@ -153,17 +151,19 @@ WITH count(1) AS valid_steps, rels_size
 WHERE valid_steps = rels_size - 1
 ```
 
-This became significantly more complex! We need to gather all the nodes and relationships in the path, the number of relationships, and the last relationship. For performance reasons we'll check that the last relationship is of the desired type and throw out all other paths. Then for the remaining paths, go through each Object-Object relationship and check if the type of the previous relationship equals the next relationship's expected value. Only those paths where every step is valid should be returned.
+
+
+This became significantly more complex! We need to gather all the nodes and relationships in the path, the number of relationships, and the last relationship. For performance reasons we'll check that the last relationship is of the desired type and throw out all other paths. Then for the remaining paths we need to `UNWIND` each step of the path to compare the relationship type of each step to the previous step. Only those paths where every step is valid should be returned.
 
 Each time we define a new variable using the `WITH` keyword we need to pass along any previously defined variables we want to use later in the query.
 
-This does exactly what we want. Our check method only needs to specify the last relationship in the path and all intermediate relationships are checked appropriately given the description of tuples at the beginning of this section.
+Albeit more complicated this does exactly what we want. Our check method only needs to specify the last relationship in the path and all intermediate relationships are checked appropriately given the description of tuples at the beginning of this section.
 
 But what if we want 'members' of the group to also be 'viewers' of the document?
 
 ## Userset Rewrites
 
-For any given relationship we may want certain types to behave as if they are another type. For example 'editors' of a document should also be 'viewers' of the document or for 'admins' of a group to also be 'members' of a group. This is where userset rewrites come in to play.
+For any given relationship we may want certain types to behave as if they are another type. For example an "editor" of a document should also be a "viewer" of that document or for an "admin" of a group to also be a "member" of a group. This is where userset rewrites come in to play.
 
 To specify this we need to know the object we're specifying the relationship for and all the relationships that are impled by a given relationship. This can be described in a simple YAML file.
 
@@ -191,7 +191,7 @@ An approach to userset rewrites is to expand the relationship type to all the ty
 The contents of the parsed YAML file can be loaded into the properties of a single node in the graph database which can then be matched and treated as a key-value store for the purposes of substitution in our query. 
 
 The above contents were parsed into the following format and then loaded into a node called Userset:
-```json
+```
 {
   'doc.viewer': ['viewer', 'editor'],
   'doc.editor': ['editor'],
