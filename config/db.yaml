@@ -1,0 +1,8 @@
+db:
+  host: localhost
+  port: 5455
+  user: postgres
+  password: postgres
+  database: postgres
+graph:
+  name: rebac_graph

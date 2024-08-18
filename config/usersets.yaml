@@ -1,0 +1,8 @@
+doc:
+  viewer: viewer | editor | owner
+  editor: editor | owner
+  owner: owner
+group:
+  guest: guest | member | admin
+  member: member | admin
+  admin: admin

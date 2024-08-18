@@ -1,0 +1,4 @@
+doc:1#owner@1
+group:1#member@2
+group:1#guest@3
+doc:1#viewer@group:1#member
