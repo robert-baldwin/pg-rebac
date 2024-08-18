@@ -25,7 +25,7 @@ group:1#member@2
 
 This states that the user with id 1 is the owner of the document with id 1. The user with id 2 is a member of the group with id 1.
 
-Object-Object relations are described in the format `<namespace>:<object_id>#<relationship>@<namespace>:<object_id>`. For example, a member of group 1 is a viewer of the document with id 1 would be represented as:
+Object-Object relations are described in the format `<namespace>:<object_id>#<relationship>@<namespace>:<object_id>#<relationship>`. For example, a member of group 1 is a viewer of the document with id 1 would be represented as:
 ```
 doc:1#viewer@group:1#member
 ```
