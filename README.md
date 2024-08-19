@@ -160,7 +160,7 @@ WITH count(1) AS valid_steps, rels_size
 WHERE valid_steps = rels_size - 1
 ```
 
-This became significantly more complex! We need to gather all the relationships in the path, the number of relationships, and the last relationship. For performance reasons we'll check that the last relationship is of the desired type and throw out all other paths. Then for the remaining paths we need to `UNWIND` each step of the path to compare the relationship type of each step to the previous step. Only those paths where every step is valid should be returned. The User-Object relationship has no previous relationship so it is ignored.
+This became significantly more complex! We need to gather all the relationships in the path (`rels`), the number of relationships (`rels_size`), and the last relationship (`last_rel`). For performance reasons we'll check that the last relationship is of the desired type and throw out all other paths. Then for the remaining paths we need to `UNWIND` each step of the path to compare the relationship type of each step (`next_rel`) to the previous step (`prev_rel`). Only those paths where every step is valid should be returned. The User-Object relationship has no previous relationship so it is ignored (`valid_steps = rels_size - 1`).
 
 Each time we define a new variable using the `WITH` keyword we need to pass along any previously defined variables we want to use later in the query.
 
@@ -235,7 +235,7 @@ WITH count(1) AS valid_steps, rels_size
 WHERE valid_steps = rels_size - 1
 ```
 
-This query looks similiar to the Object-Object query in the previous section. One callout here is that this query refers to the namespaces of nodes in addition to the previous relationship type.
+This query looks similiar to the Object-Object query in the previous section. One callout here is that this query refers to the userset (`us`) and namespaces of nodes (`ns`) in addition to the previous relationship type.
 
 Now we have a working permission check for a simple ReBAC system. Now all we need to do is create a function that parameterizes the hard coded values for user ID, object ID, object namespace, and relationship type.
 
