@@ -241,7 +241,7 @@ Now we have a working permission check for a simple ReBAC system. Now all we nee
 
 ## The Check Function
 
-User Defined Functions (UDFs) in postgres allow us to write the SQL once and store it in the database. This makes adding clients for different languages easier since merely needs to call the UDF and pass in appropriate arguments.
+User Defined Functions (UDFs) in postgres allow us to write the SQL once and store it in the database. This makes adding clients for different languages easier since the client merely needs to call the UDF and pass in appropriate arguments.
 
 This function combines SQL and Cypher syntax, interpolates arguments SQL's `%s` and `%L` for unquoted and quoted strings. `$$` and `$<name>$` is used to define strings to avoid single quote escaping issues.
 
