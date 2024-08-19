@@ -235,7 +235,7 @@ WITH count(1) AS valid_steps, rels_size
 WHERE valid_steps = rels_size - 1
 ```
 
-This query looks similiar to the Object-Object query above. One callout here is that this query refers to the namespaces of nodes in addition to the previous relationship type.
+This query looks similiar to the Object-Object query in the previous section. One callout here is that this query refers to the namespaces of nodes in addition to the previous relationship type.
 
 Now we have a working permission check for a simple ReBAC system. Now all we need to do is create a function that parameterizes the hard coded values for user ID, object ID, object namespace, and relationship type.
 
