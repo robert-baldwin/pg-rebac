@@ -36,7 +36,9 @@ The result being that the user with id 1 is an editor of document 1 and the user
 
 User-Object checks are simple and straight forward. Checking if a user is authorized through an Object-Object is a bit more complex. If modeled through a postgres table of tuples it would require recursively joining objects to check if the user has access to the target object.
 
-Graph databases are designed to handle this kind of query, especially when more objects are added to the chain. Here's a graph that describes User 2's relationship to the Document:
+Graph databases are designed to handle this kind of query, especially when more objects are added to the chain.
+
+Here's a graph that describes User 2's relationship to the Document:
 ```mermaid
 flowchart LR
     A(user:2) -->|member| B(group:1)
