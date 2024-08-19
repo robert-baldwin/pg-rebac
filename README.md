@@ -244,7 +244,7 @@ User Defined Functions (UDFs) in postgres allow us to write the SQL once and sto
 This function combines SQL and Cypher syntax, interpolates arguments using Javascript's `${}` syntax as well as SQL's `%s` and `%L` for unquoted and quoted strings. `$$` and `$<name>$` is used to define strings to avoid single quote escaping issues.
 
 Here is the function in full:
-```
+```sql
 CREATE OR REPLACE FUNCTION check_user_access(
   p_user_id INT, 
   p_object_id INT, 
