@@ -217,7 +217,7 @@ MATCH (User {id: 2})-[r]->(o:Object {id: 1, namespace: "doc"})
 WHERE type(r) IN us[o.namespace + '.' + 'viewer'];
 ```
 
-In this query we're adding references for the nodes matched Userset and Object using the `(<variable>:<object>)` syntax. Properties are typically refrenced using the `.` syntax, for example `o.namespace` is referring to the `namespace` property of the `o` Object node. However, we can also use the `[]` syntax to reference properties of nodes, where `o['namespace']` would return the same result.
+In this query we're adding references for the nodes matched Userset and Object using the `(<variable>:<node_type>)` syntax. Properties are typically refrenced using the `.` syntax, for example `o.namespace` is referring to the `namespace` property of the `o` Object node. However, we can also use the `[]` syntax to reference properties of nodes, where `o['namespace']` would return the same result.
 
 These are combined in the `WHERE` statement. `us[o.namespace + '.' + 'viewer']` resolves to `us['doc.viewer']` which returns `['viewer', 'editor']`. Now the path will be returned if the relationship for the Document object is either 'viewer' or 'editor' when we perform a check for 'viewer'.
 
