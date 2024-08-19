@@ -207,7 +207,7 @@ The above contents were parsed into the following format and then loaded as prop
 }
 ```
 
-In the `WITH` clause the familiar `IN` operator can be used to check if a value is contained in a list of values.
+In the `WHERE` clause the familiar `IN` operator can be used to check if a value is contained in a list of values.
 
 Here's the updated query for a simple User-Object permission check:
 
