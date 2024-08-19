@@ -30,7 +30,7 @@ Object-Object relations are described in the format `<namespace>:<object_id>#<re
 doc:1#viewer@group:1#member
 ```
 
-The result being that the user with id 1 is an editor of document 1 and the user with id 2 can view the document.
+Resulting in User 1 having the ability to edit Document 1 and User 2 to view the document.
 
 ## Representing Permission Checks as Graphs
 
