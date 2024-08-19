@@ -85,7 +85,7 @@ Instead of using `*` we can use the `[:label]` syntax (a label is also the relat
 MATCH (User {id: 1})-[:editor]->(Object {id: 1, namespace: "doc"});
 ```
 
-The `MATCH` clause will return 0 matches if the only relationships betwen the User and Object are of type "viewer". An astute reader may notice that we'd like for an editor of the document to also be a viewer of a document. We'll address this later on with the userset rewrites feature set mentioned earlier.
+The `MATCH` clause will return 0 matches if the only relationships between the User and Object are of type "viewer". An astute reader may notice that we'd like for an editor of the document to also be a viewer of a document. We'll address this later on with the userset rewrites feature set mentioned earlier.
 
 ## A Simple Object-Object Permission Check
 
@@ -98,7 +98,8 @@ flowchart LR
     G1 -->|editor| D1(doc:1)
 ```
 
-To check the permission that User 2 has relative to Document 1 we can check the last relationship in the path. This cypher query assigns the entire path to the `path` variable and the matched relationship to the `r` variable and checks the type of the matched relationship.
+To check the permission that User 2 has relative to Document 1 we can check the last relationship in the path. This cypher query assigns the entire path to the `path` variable and checks the type of the last  relationship in the path.
+
 ```cypher
 MATCH path = (User {id: 2})-[*]->(Object {id: 1, namespace: "doc"})
 WHERE type(last(relationships(path))) = 'editor';
@@ -150,8 +151,6 @@ WHERE type(prev_rel) = next_rel.prev
 WITH count(1) AS valid_steps, rels_size
 WHERE valid_steps = rels_size - 1
 ```
-
-
 
 This became significantly more complex! We need to gather all the nodes and relationships in the path, the number of relationships, and the last relationship. For performance reasons we'll check that the last relationship is of the desired type and throw out all other paths. Then for the remaining paths we need to `UNWIND` each step of the path to compare the relationship type of each step to the previous step. Only those paths where every step is valid should be returned.
 
