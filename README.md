@@ -45,7 +45,7 @@ flowchart LR
     B -->|viewer| C(doc:1)
 ```
 
-[Apache AGE](https://age.apache.org/) is a graph database extension for postgres. In addition to efficiently handling graph traversal it also provides the cypher query language to express queries more naturally.
+[Apache AGE](https://age.apache.org/) is a graph database extension for postgres. In addition to efficiently handling graph traversal it also provides the [cypher query language](https://neo4j.com/docs/cypher-manual/current/queries/concepts/) to express queries more naturally.
 
 Here's a simple cypher query that checks if there is path between User 2 and Document 1:
 
