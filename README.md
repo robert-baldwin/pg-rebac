@@ -127,7 +127,7 @@ flowchart LR
 
 Our cypher query only checks the last relationship in the path. User 2 has a relationship to Group 1 which has a relationship with the "editor" label so a match will be found implying that User 2 can edit the document!
 
-To solve this we need to each relationship type against the previous relationship in the path, requiring us to store more information in the graph. Adding a property to each Object-Object relationship describing the previous relationship's type enables the desired comparison.
+To solve this we need to compare each relationship type against the previous relationship in the path, requiring us to store more information in the graph. Adding a property to each Object-Object relationship describing the previous relationship's type enables the desired comparison.
 
 ```mermaid
 flowchart LR
