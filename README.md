@@ -19,18 +19,18 @@ There's also the ability to return a collection of objects a user can operate on
 
 User-Object relations are described as [tuples](https://zanzibar.tech/#annotations/intro/no-user-user) in the format `<namespace>:<object_id>#<relationship>@<user_id>`. Here's an example of a Object-User relation:
 ```
-doc:1#owner@1
+doc:1#editor@1
 group:1#member@2
 ```
 
-This states that the user with id 1 is the owner of the document with id 1. The user with id 2 is a member of the group with id 1.
+This states that the user with id 1 is an editor of the document with id 1. The user with id 2 is a member of the group with id 1.
 
 Object-Object relations are described in the format `<namespace>:<object_id>#<relationship>@<namespace>:<object_id>#<relationship>`. For example, a member of group 1 is a viewer of the document with id 1 would be represented as:
 ```
 doc:1#viewer@group:1#member
 ```
 
-The result being that the user with id 1 is the owner of document 1 and the user with id 2 can view the document.
+The result being that the user with id 1 is an editor of document 1 and the user with id 2 can view the document.
 
 ## Representing Permission Checks as Graphs
 
@@ -102,10 +102,10 @@ To check the permission that User 2 has relative to Document 1 we can check the 
 
 ```cypher
 MATCH path = (User {id: 2})-[*]->(Object {id: 1, namespace: "doc"})
-WHERE type(last(relationships(path))) = 'editor';
+WHERE type(last(relationships(path))) = 'viewer';
 ```
 
-If we were to substitute 'editor' with 'viewer' the query would return no matches. This is great progress! However, this isn't enough to perform an accurate check. To understand why let's consider the following set of relationships:
+If we were to substitute 'viewer' with 'editor' the query would return no matches. This is great progress! However, this isn't enough to perform an accurate check. To understand why let's consider the following set of relationships:
 
 ```
 group:1#member@1
