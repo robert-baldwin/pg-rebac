@@ -57,11 +57,13 @@ Nodes (also called a vertices in graph terminology) are written with `()` syntax
 
 In this case the `*` denotes any number of relationships and any number of relationship types. In this setup we have two different kinds of objects: `User` and `Document`. However, we'll need something more generic to describe any type of object.
 
+In Zanzibar's paper they describe objects with `<namespace>:<id>` syntax. We can use the `namespace` property on an object node (aka. vertex) to describe the type of object.
+
 ```cypher
 MATCH (User {id: 2})-[*]->(Object {id: 1, namespace: "doc"});
 ```
 
-In Zanzibar's paper they describe objects with `<namespace>:<id>` syntax. We can use the `namespace` property on an object node (aka. vertex) to describe the type of object. However, this isn't nearly enough to describe relations with enough specificity to perform a check with a the interface we desire.
+However, this isn't nearly enough to describe relations with enough specificity to perform a check with a the interface we desire.
 
 What if we check if User 2 can edit Document 1? This cypher query will still find a path between the two objects. The above cypher query ignores relationship types.
 
