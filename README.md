@@ -160,7 +160,7 @@ WITH count(1) AS valid_steps, rels_size
 WHERE valid_steps = rels_size - 1
 ```
 
-This became significantly more complex! We need to gather all the nodes and relationships in the path, the number of relationships, and the last relationship. For performance reasons we'll check that the last relationship is of the desired type and throw out all other paths. Then for the remaining paths we need to `UNWIND` each step of the path to compare the relationship type of each step to the previous step. Only those paths where every step is valid should be returned.
+This became significantly more complex! We need to gather all the relationships in the path, the number of relationships, and the last relationship. For performance reasons we'll check that the last relationship is of the desired type and throw out all other paths. Then for the remaining paths we need to `UNWIND` each step of the path to compare the relationship type of each step to the previous step. Only those paths where every step is valid should be returned.
 
 Each time we define a new variable using the `WITH` keyword we need to pass along any previously defined variables we want to use later in the query.
 
