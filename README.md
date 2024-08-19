@@ -197,7 +197,7 @@ An approach to userset rewrites is to expand the relationship type to all the ty
 
 The contents of the parsed YAML file can be loaded into the properties of a single node in the graph database which can then be matched and treated as a key-value store for the purposes of substitution in our query. 
 
-The above contents were parsed into the following format and then loaded into a node called Userset:
+The above contents were parsed into the following format and then loaded as properties into a node called Userset:
 ```
 {
   'doc.viewer': ['viewer', 'editor'],
