@@ -47,7 +47,7 @@ flowchart LR
 
 [Apache AGE](https://age.apache.org/) is a graph database extension for postgres. In addition to efficiently handling graph traversal it also provides the cypher query language to express queries more naturally.
 
-Here's a simple query that checks if there is path between User 2 and Document 1:
+Here's a simple cypher query that checks if there is path between User 2 and Document 1:
 
 ```cypher
 MATCH (User {id: 2})-[*]->(Document {id: 1});
