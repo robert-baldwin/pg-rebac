@@ -53,7 +53,7 @@ Here's a simple cypher query that checks if there is path between User 2 and Doc
 MATCH (User {id: 2})-[*]->(Document {id: 1});
 ```
 
-Nodes (also called a vertices in graph terminology) are written with `()` syntax and relationships are written with `[]` syntax. Each node or vertex can have properties which are written with `{}` syntax.
+Nodes (also called a vertices in graph terminology) are written with `()` syntax and relationships are written with `-[]-` syntax which may be directional as in this case using angle brackets. Each node or vertex can have properties which are written with `{}` syntax.
 
 In this case the `*` denotes any number of relationships and any number of relationship types. In this setup we have two different kinds of objects: `User` and `Document`. However, we'll need something more generic to describe any type of object.
 
