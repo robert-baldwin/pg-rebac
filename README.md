@@ -102,10 +102,10 @@ To check the permission that User 2 has relative to Document 1 we can check the 
 
 ```cypher
 MATCH path = (User {id: 2})-[*]->(Object {id: 1, namespace: "doc"})
-WHERE type(last(relationships(path))) = 'viewer';
+WHERE type(last(relationships(path))) = 'editor';
 ```
 
-If we were to substitute 'viewer' with 'editor' the query would return no matches. This is great progress! However, this isn't enough to perform an accurate check. To understand why let's consider the following set of relationships:
+If we were to substitute 'editor' with 'viewer' the query would return no matches. This is great progress! However, this isn't enough to perform an accurate check. To understand why let's consider the following set of relationships:
 
 ```
 group:1#member@1
