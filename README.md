@@ -89,7 +89,9 @@ Instead of using `*` we can use the `[:label]` syntax (a label is also the relat
 MATCH (User {id: 1})-[:editor]->(Object {id: 1, namespace: "doc"});
 ```
 
-The `MATCH` clause will return 0 matches since the only relationship between the User and Object are of type "viewer". An astute reader may notice that we'd like for an editor of the document to also be a viewer of a document. We'll address this later on with the userset rewrites feature set mentioned earlier.
+The `MATCH` clause will return 0 matches since the only relationship between the User and Object are of type "viewer".
+
+An astute reader may notice that we'd like for an editor of the document to also be a viewer of a document. We'll address this later on with the userset rewrites feature set mentioned earlier.
 
 ## A Simple Object-Object Permission Check
 
