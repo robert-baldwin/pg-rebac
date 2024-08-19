@@ -65,7 +65,7 @@ MATCH (User {id: 2})-[*]->(Object {id: 1, namespace: "doc"});
 
 However, this isn't nearly enough to describe relations with enough specificity to perform a check with a the interface we desire.
 
-What if we check if User 2 can edit Document 1? This cypher query will still find a path between the two objects. The above cypher query ignores relationship types.
+What if we check if User 2 can edit Document 1? This cypher query will still find a path between the two objects because this query ignores relationship types.
 
 ## A Simple User-Object Permission Check
 
