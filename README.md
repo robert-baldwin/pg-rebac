@@ -145,7 +145,7 @@ flowchart LR
     G1 -->|viewer, prev: guest| D1(doc:1)
 ```
 
-Now each Object-Object relationship knows the previous relationship type. In this case the "editor" relationship between Group 1 and Document 1 applies only to members of Group 1. Similarly, the "viewer" relationship between Group 1 and Document 1 applies to guests of Group 1.
+Now each Object-Object relationship knows the previous relationship type to specify valid paths. In this case the "editor" relationship between Group 1 and Document 1 applies only to members of Group 1. Similarly, the "viewer" relationship between Group 1 and Document 1 applies to guests of Group 1.
 
 Here's the cypher query that checks if User 2 can edit Document 1:
 
