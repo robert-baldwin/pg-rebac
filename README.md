@@ -228,3 +228,84 @@ WHERE valid_steps = rels_size - 1
 One callout here is that this query refers to the namespaces of nodes in addition to the previous relationship type.
 
 Now we have a working permission check for a simple ReBAC system. Now all we need to do is create a function that parameterizes the hard coded values for user ID, object ID, object namespace, and relationship type.
+
+## The Check Function
+
+User Defined Functions (UDFs) in postgres allow us to write the SQL once and store it in the database. This makes adding clients for different languages easier since merely needs to call the UDF and pass in appropriate arguments.
+
+This function combines SQL and Cypher syntax, interpolates arguments using Javascript's `${}` syntax as well as SQL's `%s` and `%L` for unquoted and quoted strings. `$$` and `$<name>$` is used to define strings to avoid single quote escaping issues.
+
+Here is the function in full:
+```
+CREATE OR REPLACE FUNCTION check_user_access(
+  p_user_id INT, 
+  p_object_id INT, 
+  p_object_type TEXT, 
+  p_final_relationship TEXT
+)
+RETURNS BOOLEAN AS $func$
+DECLARE
+  result BOOLEAN := FALSE;
+  graph_name TEXT := '${graph}';
+  cypher_query TEXT;
+BEGIN
+  cypher_query := format($fmt$
+    MATCH (us:Userset)
+    MATCH (u:User {user_id: %s})-[r]->(o:Object {object_id: %s, namespace: %L})
+    WHERE type(r) IN us[o.namespace + '.' + %L]
+    RETURN true
+    LIMIT 1
+  $fmt$,
+  p_user_id, p_object_id, p_object_type, p_final_relationship);
+
+  EXECUTE format($exec$
+    SELECT EXISTS (
+      SELECT 1 FROM cypher(%L, $$%s$$) AS (result agtype)
+    )
+  $exec$, graph_name, cypher_query)
+  INTO result;
+
+  IF result THEN
+    RETURN TRUE;
+  END IF;
+
+  cypher_query := format($fmt$
+    MATCH (us:Userset)
+    MATCH path = (User {user_id: %s})-[*]->(o:Object {object_id: %s, namespace: %L})
+    WITH us, o, nodes(path) AS ns, relationships(path) AS rels, size(relationships(path)) AS rels_size, last(relationships(path)) AS last_rel
+    WHERE type(last_rel) IN us[o.namespace + '.' + %L]
+    UNWIND range(0, rels_size - 2) AS i
+    WITH us, ns[i+1] as n, rels[i] as prev_rel, rels[i+1] AS next_rel, rels_size
+    WHERE type(prev_rel) IN us[n.namespace + '.' + next_rel.relation]
+    WITH count(1) AS valid_steps, rels_size
+    WHERE valid_steps = rels_size - 1
+    RETURN true
+    LIMIT 1
+  $fmt$,
+  p_user_id, p_object_id, p_object_type, p_final_relationship);
+      
+  EXECUTE format($exec$
+    SELECT EXISTS (
+      SELECT 1 FROM cypher(%L, $$%s$$) AS (result agtype)
+    )
+  $exec$, graph_name, cypher_query)
+  INTO result;
+
+  IF result THEN
+    RETURN TRUE;
+  END IF;
+
+  RETURN FALSE;
+END;
+$func$ LANGUAGE plpgsql;
+```
+
+The `check_user_access` funcion takes in a `user_id`, `object_id`, `object_type`, and `final_relationship` and returns a boolean. There are few decisions intended to improve performance. There are two queries, one to check if a direct User-Object relationship exists and another to find paths across Object-Object relationships to the target object. The first query is faster to execute and the function returns early if a record is found. Within the second query we first check the final relationship type and throw out all paths that don't match to avoid unnecessary computation. Both queries also use `LIMIT 1` to stop after finding the first valid path.
+
+To limit the size of the return values `SELECT 1` is used to return 1 if any row is found. The cypher query either returns 1 row or 0 rows. It is wrapped in an a `SELECT EXISTS` query which returns a boolean, true if any row is found else false. The `EXECUTE ... INTO` clause assigns the result of the `SELECT EXISTS` query in the variable defined in the `DECLARE` clause towards the top of the function. After each query `IF result THEN RETURN TRUE; END IF;` is used to return early if a match is found.
+
+## Conclusion
+
+This simple proof of concept demonstrates how to use a graph database to implement the check method for a simple ReBAC system with userset rewrites. For a simple graph the check function returns in ~10ms on my local machine. I'm rather new to performance benchmarking for projects like this so I'd love to hear any recommendations on how to perform them.
+
+In general I welcome any and all feedback. Whether it's positive or negative I'd love to hear it.

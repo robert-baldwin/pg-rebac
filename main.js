@@ -45,9 +45,9 @@ async function initialize() {
   await pool.query(`
     CREATE OR REPLACE FUNCTION check_user_access(
       p_user_id INT, 
-      p_resource_id INT, 
-      p_resource_type TEXT, 
-      p_final_relationships TEXT
+      p_object_id INT, 
+      p_object_type TEXT, 
+      p_final_relationship TEXT
     )
     RETURNS BOOLEAN AS $func$
     DECLARE
@@ -62,7 +62,7 @@ async function initialize() {
         RETURN true
         LIMIT 1
       $fmt$,
-      p_user_id, p_resource_id, p_resource_type, p_final_relationships);
+      p_user_id, p_object_id, p_object_type, p_final_relationship);
 
       EXECUTE format($exec$
         SELECT EXISTS (
@@ -88,7 +88,7 @@ async function initialize() {
         RETURN true
         LIMIT 1
       $fmt$,
-      p_user_id, p_resource_id, p_resource_type, p_final_relationships);
+      p_user_id, p_object_id, p_object_type, p_final_relationship);
       
       EXECUTE format($exec$
         SELECT EXISTS (
