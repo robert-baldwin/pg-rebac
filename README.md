@@ -207,7 +207,7 @@ The above contents were parsed into the following format and then loaded into a 
 }
 ```
 
-In our more complex query we can also use the familiar `IN` operator to check if a value is contained in a list of values. Here's the updated query for a simple User-Object permission check:
+In the `WITH` clause the familiar `IN` operator can be used to check if a value is contained in a list of values. Here's the updated query for a simple User-Object permission check:
 
 ```cypher
 MATCH (us:Userset)
